@@ -2,6 +2,7 @@ use std::str;
 
 mod block;
 mod disk_manager;
+mod lru_replacer;
 
 use block::Block;
 use disk_manager::DiskManager;

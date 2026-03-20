@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, ptr::null};
 
 // A node in our simulated double linked list (to avoid using strict raw pointer *mut due to borrow checker constrains)
 #[derive(Clone, Copy)]
@@ -41,8 +41,34 @@ impl LRUReplacer {
     // --- PRIVATE AUX METHODS (The magic of our linked list) ---
     
     // Extract a node from the linked list connecting it 'prev' withe the 'next'
-    // fn remove_node(&mut self, index: usize) { ... }
+    fn remove_node(&mut self, index: usize) {
+        let node = self.nodes[index];
+
+        match node.prev{
+            // Handling the case where we have a prev node
+            Some(prev_idx) => self.nodes[prev_idx].next = node.next,
+            // Handling the case where we dont have a prev
+            None => self.head = node.next,
+        }
+
+        match node.next{
+            Some(next_idx) => self.nodes[next_idx].prev = node.prev,
+            None => self.tail = node.prev,
+        }
+        self.nodes[index].prev = None;
+        self.nodes[index].next = None;
+
+    }
     
     // Insert a node in the head (MRU)
-    // fn push_front(&mut self, index: usize) { ... }
+    fn push_front(&mut self, index: usize) {
+        self.nodes[index].prev = None;
+        self.nodes[index].next = self.head;
+
+        match self.head {
+            Some(head) => self.nodes[head].prev = Some(index),
+            None => self.tail = Some(index),
+        }
+        self.head = Some(index);
+    }
 }
