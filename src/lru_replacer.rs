@@ -35,7 +35,21 @@ impl LRUReplacer {
     // --- PUBLIC METHODS FOR THE REPLACER ---
     
     // pub fn victim(&mut self) -> Option<usize> { ... }
-    // pub fn unpin(&mut self, frame_id: usize) { ... }
+    pub fn unpin(&mut self, frame_id: usize) {
+        if let Some(&index) = self.frame_map.get(&frame_id){
+            self.remove_node(index);
+            self.push_front(index);
+        }
+        else{
+            assert!(self.nodes.len() < self.capacity, "FATAL: LRU Exceeds max capacity");
+
+            let new_node = LRUNode{frame_id, prev:None, next:None};
+            let new_index = self.nodes.len();
+            self.nodes.push(new_node);
+            self.frame_map.insert(frame_id, new_index);
+            self.push_front(new_index);
+        }
+    }
     // pub fn pin(&mut self, frame_id: usize) { ... }
 
     // --- PRIVATE AUX METHODS (The magic of our linked list) ---
