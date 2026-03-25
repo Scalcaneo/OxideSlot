@@ -3,3 +3,6 @@
 *.log
 *.lock
 *.toml
+*.o
+*.out
+*.exe
