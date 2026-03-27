@@ -1,4 +1,4 @@
-use std::{collections::HashMap, ptr::null};
+use std::{collections::{HashMap, hash_map}, ops::Index, ptr::null};
 
 // A node in our simulated double linked list (to avoid using strict raw pointer *mut due to borrow checker constrains)
 #[derive(Clone, Copy)]
@@ -34,7 +34,21 @@ impl LRUReplacer {
 
     // --- PUBLIC METHODS FOR THE REPLACER ---
     
-    // pub fn victim(&mut self) -> Option<usize> { ... }
+    pub fn victim(&mut self) -> Option<usize> {
+        if let Some(index) = self.tail{
+            let victim_frame_id = self.nodes[index].frame_id;
+            
+            self.remove_node(index);
+            self.frame_map.remove(&victim_frame_id);
+
+            Some(victim_frame_id)
+        }
+        else{
+
+            None
+        }
+    }
+
     pub fn unpin(&mut self, frame_id: usize) {
         if let Some(&index) = self.frame_map.get(&frame_id){
             self.remove_node(index);
@@ -50,9 +64,13 @@ impl LRUReplacer {
             self.push_front(new_index);
         }
     }
-    // pub fn pin(&mut self, frame_id: usize) { ... }
-
-    // --- PRIVATE AUX METHODS (The magic of our linked list) ---
+    pub fn pin(&mut self, frame_id: usize) {
+        if let Some(&index) = self.frame_map.get(&frame_id){
+            self.remove_node(index);
+            self.frame_map.remove(&frame_id);
+        }
+    }
+    // --- PRIVATE AUX METHODS (The magic of the linked list) ---
     
     // Extract a node from the linked list connecting it 'prev' withe the 'next'
     fn remove_node(&mut self, index: usize) {
