@@ -3,6 +3,7 @@ use std::str;
 mod block;
 mod disk_manager;
 mod lru_replacer;
+mod buffer_cache;
 
 use block::Block;
 use disk_manager::DiskManager;
