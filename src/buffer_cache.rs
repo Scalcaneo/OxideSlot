@@ -31,7 +31,7 @@ impl BufferPoolManager {
         //Rust trick: Initialize frame arrays with empty blocks
         let mut frames = Vec::with_capacity(pool_size);
         for _ in 0..pool_size {
-            frames.push(Block::new(0)); // Página dummy
+            frames.push(Block::new(0)); // dummy block
         }
 
         Self {
