@@ -44,7 +44,6 @@ impl LRUReplacer {
             Some(victim_frame_id)
         }
         else{
-
             None
         }
     }
