@@ -70,11 +70,24 @@ impl BufferPoolManager {
 
     //Let the buffer pool know that we finished using the block
     pub fn unpin_page(&mut self, block_id: u32, is_dirty: bool) -> bool {
-        // TODO
-        false
+        let Some(&frame_index) = self.blocks_table.get(&block_id) else {
+            return false;
+        };
+    
+        if self.pin_count[frame_index] == 0 {
+            return false;
+        }
+        self.pin_count[frame_index] -= 1;
+        self.is_dirty[frame_index] = self.is_dirty[frame_index] || is_dirty;
+        if self.pin_count[frame_index] == 0{
+            self.replacer.unpin(frame_index);
+        }
+
+        true
+
     }
 
-        // HELPERS
+    // HELPERS
 
     // Find physic RAM space
     fn find_victim_frame(&mut self) -> Option<usize>{
